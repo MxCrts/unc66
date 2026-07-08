@@ -16,7 +16,7 @@ import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         {/* Pages publiques, avec nav + footer communs */}
         <Route element={<Layout />}>

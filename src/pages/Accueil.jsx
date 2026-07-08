@@ -1,9 +1,10 @@
 import { Clock } from "lucide-react";
 import Logo from "../components/Logo";
-import PlaceholderImage from "../components/PlaceholderImage";
 import PlaceholderBlock from "../components/PlaceholderBlock";
 import ActionCard from "../components/ActionCard";
 import { ACTIONS_RAPIDES, COORDONNEES } from "../data/siteContent";
+import heroActuelle from "../assets/hero-actuelle.jpg";
+import heroArchive from "../assets/hero-archive.jpg";
 
 export default function Accueil() {
   return (
@@ -11,13 +12,21 @@ export default function Accueil() {
       {/* Bandeau hero : 2 photos + logo centré + titre */}
       <section>
         <div className="grid grid-cols-2 h-40 sm:h-56 lg:h-64">
-          <PlaceholderImage label="photo actuelle (militaires en opération)" className="h-full" />
-          <PlaceholderImage label="photo d'archive (mémoire, anciens combattants)" className="h-full" />
+          <img
+            src={heroActuelle}
+            alt="Militaires français en opération, aujourd'hui"
+            className="h-full w-full object-cover"
+          />
+          <img
+            src={heroArchive}
+            alt="Soldats français, photo d'archive"
+            className="h-full w-full object-cover"
+          />
         </div>
 
-        <div className="relative flex flex-col items-center text-center px-4 -mt-10 sm:-mt-12">
-          <div className="bg-white rounded-full p-2 shadow-md">
-            <Logo size={88} />
+        <div className="relative flex flex-col items-center text-center px-4 -mt-8 sm:-mt-10">
+          <div className="bg-white rounded-xl px-4 py-3 shadow-md">
+            <Logo size={80} />
           </div>
           <p className="mt-4 text-sm italic text-unc-gray">Aujourd'hui... comme hier</p>
           <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold text-unc-navy max-w-2xl">
