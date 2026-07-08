@@ -9,6 +9,9 @@ const MESSAGES = {
   "auth/too-many-requests": "Trop de tentatives. Réessayez dans quelques minutes.",
   "auth/network-request-failed": "Problème de connexion réseau. Vérifiez votre connexion internet.",
   "storage/unauthorized": "Vous n'êtes pas autorisé à effectuer cette action.",
+  "storage/canceled": "Envoi annulé.",
+  "storage/retry-limit-exceeded": "Échec de l'envoi (problème réseau). Réessayez.",
+  "storage/unknown": "Échec de l'envoi. Réessayez.",
   "permission-denied": "Vous n'êtes pas autorisé à effectuer cette action.",
 };
 

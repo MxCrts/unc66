@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Pencil, Trash2, Upload, X } from "lucide-react";
 import {
   listAllActualites,
   createActualite,
   updateActualite,
   deleteActualite,
+  uploadActualiteImage,
+  deleteActualiteImage,
 } from "../../services/actualites";
+import { validerImage } from "../../lib/imageValidation";
 import { messageErreurFirebase } from "../../lib/firebaseErrors";
 import Field, { inputClass } from "../../components/admin/Field";
 import StatusMessage from "../../components/admin/StatusMessage";
 
-const FORM_VIDE = { titre: "", contenu: "", date: "", imageUrl: "", archive: false };
+const FORM_VIDE = { titre: "", contenu: "", date: "", archive: false };
 
 export default function ActualitesAdmin() {
   const [items, setItems] = useState([]);
@@ -20,8 +23,21 @@ export default function ActualitesAdmin() {
   const [form, setForm] = useState(FORM_VIDE);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // Image : soit une URL collée, soit un fichier importé depuis le PC.
+  const [imageMode, setImageMode] = useState("url"); // "url" | "file"
+  const [imageUrlInput, setImageUrlInput] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  // Image déjà enregistrée (venant d'un upload précédent) tant qu'elle n'est pas remplacée/retirée.
+  const [currentImageUrl, setCurrentImageUrl] = useState("");
+  const [currentImageStoragePath, setCurrentImageStoragePath] = useState("");
+  // Chemin Storage à supprimer une fois l'enregistrement réussi.
+  const [pendingDeletePath, setPendingDeletePath] = useState("");
+  const [imageError, setImageError] = useState("");
 
   async function loadItems() {
     setLoading(true);
@@ -39,10 +55,25 @@ export default function ActualitesAdmin() {
     loadItems();
   }, []);
 
+  // Révoque l'URL d'aperçu locale précédente à chaque changement / démontage.
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
   function resetForm() {
     setForm(FORM_VIDE);
     setEditingId(null);
     setFormError("");
+    setImageMode("url");
+    setImageUrlInput("");
+    setImageFile(null);
+    setImagePreview("");
+    setCurrentImageUrl("");
+    setCurrentImageStoragePath("");
+    setPendingDeletePath("");
+    setImageError("");
   }
 
   function handleEdit(item) {
@@ -51,23 +82,86 @@ export default function ActualitesAdmin() {
       titre: item.titre || "",
       contenu: item.contenu || "",
       date: item.date || "",
-      imageUrl: item.imageUrl || "",
       archive: !!item.archive,
     });
+    if (item.imageStoragePath) {
+      setImageMode("file");
+      setCurrentImageUrl(item.imageUrl || "");
+      setCurrentImageStoragePath(item.imageStoragePath);
+      setImageUrlInput("");
+    } else {
+      setImageMode("url");
+      setImageUrlInput(item.imageUrl || "");
+      setCurrentImageUrl("");
+      setCurrentImageStoragePath("");
+    }
+    setImageFile(null);
+    setImagePreview("");
+    setPendingDeletePath("");
+    setImageError("");
     setSuccess("");
     setFormError("");
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(item) {
     if (!window.confirm("Supprimer définitivement cette actualité ?")) return;
     try {
-      await deleteActualite(id);
-      if (editingId === id) resetForm();
+      await deleteActualite(item);
+      if (editingId === item.id) resetForm();
       await loadItems();
     } catch (err) {
       setLoadError(messageErreurFirebase(err));
     }
   }
+
+  function handleImageModeChange(mode) {
+    if (mode === imageMode) return;
+    if (mode === "url" && currentImageStoragePath) {
+      setPendingDeletePath(currentImageStoragePath);
+      setCurrentImageUrl("");
+      setCurrentImageStoragePath("");
+    }
+    setImageFile(null);
+    setImagePreview("");
+    setImageUrlInput("");
+    setImageError("");
+    setImageMode(mode);
+  }
+
+  function handleImageFileChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageError("");
+    try {
+      validerImage(file);
+    } catch (err) {
+      setImageError(err.message);
+      e.target.value = "";
+      return;
+    }
+    if (currentImageStoragePath) {
+      setPendingDeletePath(currentImageStoragePath);
+      setCurrentImageUrl("");
+      setCurrentImageStoragePath("");
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    e.target.value = "";
+  }
+
+  function handleRemoveImage() {
+    if (currentImageStoragePath) {
+      setPendingDeletePath(currentImageStoragePath);
+    }
+    setImageFile(null);
+    setImagePreview("");
+    setCurrentImageUrl("");
+    setCurrentImageStoragePath("");
+    setImageUrlInput("");
+    setImageError("");
+  }
+
+  const previewSrc = imageMode === "file" ? imagePreview || currentImageUrl : imageUrlInput;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -75,18 +169,50 @@ export default function ActualitesAdmin() {
     setSuccess("");
     setSubmitting(true);
     try {
+      let finalImageUrl = null;
+      let finalImageStoragePath = null;
+
+      if (imageMode === "file") {
+        if (imageFile) {
+          setUploadingImage(true);
+          const uploaded = await uploadActualiteImage(imageFile);
+          finalImageUrl = uploaded.url;
+          finalImageStoragePath = uploaded.storagePath;
+          setUploadingImage(false);
+        } else {
+          finalImageUrl = currentImageUrl || null;
+          finalImageStoragePath = currentImageStoragePath || null;
+        }
+      } else {
+        finalImageUrl = imageUrlInput.trim() || null;
+        finalImageStoragePath = null;
+      }
+
+      const payload = { ...form, imageUrl: finalImageUrl, imageStoragePath: finalImageStoragePath };
+
       if (editingId) {
-        await updateActualite(editingId, form);
+        await updateActualite(editingId, payload);
         setSuccess("Actualité mise à jour.");
       } else {
-        await createActualite(form);
+        await createActualite(payload);
         setSuccess("Actualité publiée.");
       }
+
+      if (pendingDeletePath) {
+        try {
+          await deleteActualiteImage(pendingDeletePath);
+        } catch {
+          // Best-effort : l'actualité est déjà enregistrée avec sa nouvelle image,
+          // on ne bloque pas l'utilisateur pour un fichier orphelin.
+        }
+      }
+
       resetForm();
       await loadItems();
     } catch (err) {
       setFormError(messageErreurFirebase(err));
     } finally {
+      setUploadingImage(false);
       setSubmitting(false);
     }
   }
@@ -138,14 +264,83 @@ export default function ActualitesAdmin() {
           />
         </Field>
 
-        <Field label="Image (URL, optionnel)">
-          <input
-            type="url"
-            className={inputClass}
-            placeholder="https://..."
-            value={form.imageUrl}
-            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-          />
+        <Field label="Image (optionnel)">
+          <div className="flex gap-2 mb-2">
+            <button
+              type="button"
+              onClick={() => handleImageModeChange("url")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-colors ${
+                imageMode === "url"
+                  ? "bg-unc-navy text-white border-unc-navy"
+                  : "bg-white text-unc-gray border-unc-border/40 hover:border-unc-navy/40"
+              }`}
+            >
+              Coller une URL
+            </button>
+            <button
+              type="button"
+              onClick={() => handleImageModeChange("file")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-colors ${
+                imageMode === "file"
+                  ? "bg-unc-navy text-white border-unc-navy"
+                  : "bg-white text-unc-gray border-unc-border/40 hover:border-unc-navy/40"
+              }`}
+            >
+              Importer depuis mon ordinateur
+            </button>
+          </div>
+
+          {imageMode === "url" ? (
+            <input
+              type="url"
+              className={inputClass}
+              placeholder="https://..."
+              value={imageUrlInput}
+              onChange={(e) => setImageUrlInput(e.target.value)}
+            />
+          ) : (
+            <label
+              className={`flex items-center justify-center gap-2 border-2 border-dashed border-unc-border/40 rounded-md py-6 text-sm text-unc-gray cursor-pointer hover:border-unc-navy/40 transition-colors ${
+                uploadingImage ? "opacity-60 pointer-events-none" : ""
+              }`}
+            >
+              <Upload className="w-4 h-4" />
+              {uploadingImage
+                ? "Envoi en cours…"
+                : previewSrc
+                ? "Changer l'image"
+                : "Cliquez pour choisir une image (JPG, PNG, WebP, 5 Mo max)"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                hidden
+                onChange={handleImageFileChange}
+                disabled={uploadingImage || submitting}
+              />
+            </label>
+          )}
+
+          {previewSrc && (
+            <div className="mt-3 relative inline-block">
+              <img
+                src={previewSrc}
+                alt="Aperçu"
+                className="h-32 w-auto max-w-full object-cover rounded-md border border-unc-border/30"
+              />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute -top-2 -right-2 bg-white border border-unc-border/40 rounded-full p-1 text-unc-gray hover:text-red-600 transition-colors"
+                aria-label="Retirer l'image"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          <div className="mt-2">
+            <StatusMessage type="error">{imageError}</StatusMessage>
+          </div>
         </Field>
 
         <label className="flex items-center gap-2 text-sm text-unc-gray">
@@ -165,7 +360,13 @@ export default function ActualitesAdmin() {
           disabled={submitting}
           className="bg-unc-navy hover:bg-unc-navy-dark text-white text-sm font-semibold px-4 py-2.5 rounded-md transition-colors disabled:opacity-60"
         >
-          {submitting ? "Enregistrement…" : editingId ? "Enregistrer les modifications" : "Publier l'actualité"}
+          {uploadingImage
+            ? "Envoi de l'image…"
+            : submitting
+            ? "Enregistrement…"
+            : editingId
+            ? "Enregistrer les modifications"
+            : "Publier l'actualité"}
         </button>
       </form>
 
@@ -208,7 +409,7 @@ export default function ActualitesAdmin() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleDelete(item.id)}
+                  onClick={() => handleDelete(item)}
                   className="p-2 text-unc-gray hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                   aria-label="Supprimer"
                 >

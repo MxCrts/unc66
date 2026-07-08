@@ -5,6 +5,7 @@ import { getMotDuPresident } from "../services/motDuPresident";
 
 export default function MotDuPresident() {
   const [texte, setTexte] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -13,6 +14,7 @@ export default function MotDuPresident() {
       try {
         const data = await getMotDuPresident();
         setTexte(data?.texte || "");
+        setImageUrl(data?.imageUrl || "");
       } catch {
         setError("Impossible de charger le mot du Président pour le moment.");
       } finally {
@@ -25,7 +27,15 @@ export default function MotDuPresident() {
     <div>
       <PageHeader title="Le mot du Président" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-8">
-        <PlaceholderImage label="photo du Président" className="w-full aspect-square rounded-lg" />
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt="Le Président de l'UNC 66"
+            className="w-full aspect-square object-cover rounded-lg"
+          />
+        ) : (
+          <PlaceholderImage label="photo du Président" className="w-full aspect-square rounded-lg" />
+        )}
         <div className="space-y-4">
           {loading ? (
             <p className="text-sm text-unc-gray/60">Chargement…</p>

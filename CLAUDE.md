@@ -152,9 +152,9 @@ d'Analytics (`getAnalytics` volontairement absent, inutile pour l'instant).
 
 | Collection | Champs | Notes |
 |---|---|---|
-| `actualites/{id}` | `titre, contenu, date, imageUrl?, archive, createdAt` | `date` = string `"YYYY-MM-DD"` (pas un Timestamp, plus simple avec un `<input type="date">`). `archive` (bool) : ajouté par rapport à la demande initiale pour permettre un contrôle manuel de ce qui sort de la liste "en avant" — sans ce champ, impossible de distinguer proprement actualités actives / archivées. |
+| `actualites/{id}` | `titre, contenu, date, imageUrl?, imageStoragePath?, archive, createdAt` | `date` = string `"YYYY-MM-DD"` (pas un Timestamp, plus simple avec un `<input type="date">`). `archive` (bool) : ajouté par rapport à la demande initiale pour permettre un contrôle manuel de ce qui sort de la liste "en avant" — sans ce champ, impossible de distinguer proprement actualités actives / archivées. `imageUrl` peut venir d'une URL externe collée par l'admin OU d'un fichier uploadé (dossier Storage `actualites/`) ; `imageStoragePath` n'est renseigné que dans ce second cas (`null` sinon), pour savoir quel fichier Storage supprimer/remplacer sans jamais toucher à une URL externe. |
 | `agenda/{id}` | `titre, date, description, type, archive, createdAt` | Mêmes conventions. `type` = texte libre (ex: "Cérémonie", "Repas"), pas d'enum fixe. |
-| `motDuPresident/current` | `texte, updatedAt` | "Document unique" = id fixe `current` dans la collection `motDuPresident` (Firestore n'a pas de vrai singleton). |
+| `motDuPresident/current` | `texte, imageUrl?, imageStoragePath?, updatedAt` | "Document unique" = id fixe `current` dans la collection `motDuPresident` (Firestore n'a pas de vrai singleton). `imageUrl`/`imageStoragePath` : photo du Président uploadée depuis l'admin (dossier Storage `president/`), même logique que `documents.storagePath` — remplacement/retrait d'une photo supprime l'ancien fichier Storage. |
 | `documents/{id}` | `nom, url, storagePath, uploadedAt` | `storagePath` ajouté par rapport à la demande initiale : nécessaire pour supprimer le bon fichier dans Storage (sans ça, `url` seule ne permet pas de retrouver la référence Storage à supprimer). |
 
 Toute la logique d'accès est dans **`src/services/`** (un fichier par
@@ -174,11 +174,22 @@ codes d'erreur Firebase sont traduits en français par
 admin existe : "authentifié" équivaut à "admin" dans les règles de sécurité —
 pas de rôles/claims différenciés pour l'instant.
 
+Les uploads d'image (photo du Président, images d'actualités) partagent la
+même validation client via `src/lib/imageValidation.js` (`validerImage(file)`) :
+formats acceptés `jpg/png/webp`, poids max 5 Mo, sinon message d'erreur en
+français. Trois dossiers Storage sont utilisés au total : `documents/`
+(pièces jointes), `president/` (photo du Mot du Président), `actualites/`
+(images d'actualités uploadées) — tous avec le même pattern (`storagePath`
+enregistré côté Firestore pour permettre la suppression, remplacement propre
+= upload de la nouvelle image puis suppression de l'ancienne une fois
+l'enregistrement réussi).
+
 ### Règles de sécurité
 
 `firestore.rules` et `storage.rules` (à la racine) : **lecture publique**
-sur toutes les collections/fichiers listés ci-dessus, **écriture réservée
-aux utilisateurs authentifiés**. Tout le reste est fermé par défaut.
+sur toutes les collections/fichiers listés ci-dessus (Storage : `documents/`,
+`president/`, `actualites/`), **écriture réservée aux utilisateurs
+authentifiés**. Tout le reste est fermé par défaut.
 
 **Déploiement des règles** (à faire une fois par le client, qui a les accès
 Firebase) :
