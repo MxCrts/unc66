@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* =========================================================================
+   Charte graphique UNC 66 — extraite des maquettes client.
+   Voir CLAUDE.md pour le détail complet et la justification de chaque valeur.
+   ========================================================================= */
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  /* Bleu marine institutionnel : nav, titres, boutons, éléments forts */
+  --color-unc-navy: #1b2a6b;
+  --color-unc-navy-dark: #121f52;
+
+  /* Bleus/rouge du drapeau français, utilisés avec parcimonie (blason, liseré) */
+  --color-unc-blue-flag: #0055a4;
+  --color-unc-red-flag: #ef4135;
+
+  /* Bordure bleu moyen utilisée sur les encarts (permanences, actualités...) */
+  --color-unc-border: #3b5ba9;
+
+  /* Texte gris institutionnel + fonds doux */
+  --color-unc-gray: #374151;
+  --color-unc-bg-soft: #f4f6fb;
+}
+
+body {
+  @apply bg-white text-unc-gray antialiased;
+}
