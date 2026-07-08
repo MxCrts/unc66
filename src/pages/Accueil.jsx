@@ -9,9 +9,9 @@ import heroArchive from "../assets/hero-archive.jpg";
 export default function Accueil() {
   return (
     <div>
-      {/* Bandeau hero : 2 photos + logo centré + titre */}
-      <section>
-        <div className="grid grid-cols-2 h-40 sm:h-56 lg:h-64">
+      {/* Bandeau hero : 2 photos en fond + logo/titre en surimpression (dégradé pour la lisibilité) */}
+      <section className="relative h-72 sm:h-80 lg:h-96 overflow-hidden">
+        <div className="absolute inset-0 grid grid-cols-2">
           <img
             src={heroActuelle}
             alt="Militaires français en opération, aujourd'hui"
@@ -23,16 +23,17 @@ export default function Accueil() {
             className="h-full w-full object-cover"
           />
         </div>
+        <div className="absolute inset-0 bg-unc-navy/70" />
 
-        <div className="relative flex flex-col items-center text-center px-4 -mt-8 sm:-mt-10">
+        <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
           <div className="bg-white rounded-xl px-4 py-3 shadow-md">
-            <Logo size={80} />
+            <Logo size={64} />
           </div>
-          <p className="mt-4 text-sm italic text-unc-gray">Aujourd'hui... comme hier</p>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold text-unc-navy max-w-2xl">
+          <p className="mt-4 text-sm italic text-white/85">Aujourd'hui... comme hier</p>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold text-white max-w-2xl drop-shadow">
             L'UNC défend les droits des combattants et des blessés
           </h1>
-          <p className="mt-3 text-unc-gray max-w-xl">
+          <p className="mt-3 text-white/85 max-w-xl">
             La Fédération UNC des Pyrénées-Orientales « UNC 66 »
           </p>
         </div>
