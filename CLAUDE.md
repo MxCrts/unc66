@@ -21,26 +21,30 @@ leurs familles) mais un rendu web propre et moderne, pas austère.
   pas de `tailwind.config.js` : tout le thème est déclaré en CSS dans
   `src/index.css` via `@theme`)
 - **react-router-dom** — routing SPA classique (`BrowserRouter`)
-- **firebase** — installé, mais **non branché** en phase 1 (voir plus bas)
+- **firebase** (Auth + Firestore + Storage) — **branché et actif** (voir section dédiée plus bas)
 - **lucide-react** — bibliothèque d'icônes
 
 ## État d'avancement
 
-**Phase 1 (faite)** : squelette complet, toutes les pages en placeholder,
-navigation fonctionnelle, design fidèle à la charte, aucune logique Firebase.
+**Phase 1 (faite)** : squelette complet, navigation fonctionnelle, design
+fidèle à la charte.
 
-**Phase 2 (à faire)** :
-- Authentification Firebase (`onAuthStateChanged`) pour protéger `/admin/dashboard`
-- Firestore pour stocker et éditer : mot du Président, agenda, actualités,
-  partenaires, associations locales, coordonnées
-- Remplacer tous les marqueurs `[À REMPLIR]` par du vrai contenu client
-- Remplacer le blason placeholder (`src/components/Logo.jsx`) par le vrai
-  fichier logo du client (déposer l'asset dans `src/assets/` puis basculer sur
-  une balise `<img>`)
-- Remplacer les `PlaceholderImage` (photos hero, photos partenaires) par les
-  vrais visuels une fois fournis par le client
-- Renseigner les vraies URLs externes vers unc.fr (voir section dédiée plus bas)
-- Renseigner les infos des 9 associations locales (`Notre région`)
+**Phase 2 (faite)** : logo et photos hero réels intégrés, déploiement GitHub
+Pages opérationnel, Firebase branché — Auth (login admin), Firestore
+(actualités, agenda, mot du Président) et Storage (documents) avec CRUD complet
+côté admin et lecture publique côté site. Voir section « Firebase » plus bas.
+
+**Reste à faire** :
+- Remplacer les URLs externes placeholder vers unc.fr par les vraies (voir plus bas)
+- Renseigner les infos des 9 associations locales (`Notre région`) — toujours
+  en dur dans `src/data/siteContent.js`, pas encore en Firestore
+- Remplacer les logos `PlaceholderImage` des partenaires par les vrais visuels
+- Déployer `firestore.rules` / `storage.rules` / `firestore.indexes.json` sur
+  le vrai projet Firebase (le client doit lancer `firebase login` lui-même —
+  commandes exactes dans la section Firebase)
+- Éventuellement : gérer les partenaires et les associations locales depuis
+  l'admin (actuellement seuls actualités / agenda / mot du Président / documents
+  sont dynamiques, par périmètre explicite de la demande client)
 
 ## Charte graphique (extraite des maquettes client)
 
@@ -62,19 +66,15 @@ pas dupliquer ces couleurs en dur ailleurs — toujours passer par ces tokens.
 400/500/600/700/800. Une seule famille pour tout le site (titres et texte
 courant) — cohérent avec le ton institutionnel sobre. Pas de police serif.
 
-**Logo / blason** : la maquette montre un blason tricolore (bandes bleu-blanc-
-rouge verticales) avec gerbe de laurier, casque, flamme et bonnet phrygien,
-surmonté de « Fédération des » et suivi de « Pyrénées Orientales » en bleu
-marine gras. Je n'ai pas le fichier source de ce blason (seulement des
-captures d'écran) : `src/components/Logo.jsx` est donc un **placeholder**
-(badge tricolore rond avec « UNC ») à remplacer par le vrai fichier client.
+**Logo / blason** : le vrai fichier client est intégré (`src/assets/logo.png`,
+recadré automatiquement pour retirer les marges blanches/transparentes autour
+du blason). `src/components/Logo.jsx` affiche directement cette image.
 
-**Bandeau hero (accueil)** : deux photos côte à côte (une photo récente de
-militaires en opération à gauche, une photo d'archive noir et blanc à droite),
-logo centré par-dessus en chevauchement, puis accroche « Aujourd'hui... comme
-hier » (italique, petite taille) suivie du titre fort « L'UNC défend les
-droits des combattants et des blessés ». Les deux photos n'ont pas été
-fournies en fichiers exploitables → `PlaceholderImage` en attendant.
+**Bandeau hero (accueil)** : les deux vraies photos client sont intégrées
+(`src/assets/hero-actuelle.jpg` et `hero-archive.jpg`), affichées en fond sur
+toute la largeur avec un voile bleu marine semi-transparent (`bg-unc-navy/70`)
+par-dessus pour garantir la lisibilité du texte blanc (logo, « Aujourd'hui...
+comme hier », titre) qui est superposé au centre — pas en dessous des photos.
 
 **Encarts à bordure bleue** : la maquette utilise beaucoup de blocs à bordure
 bleu moyen (permanences, actualités, notre région...) plutôt que des cards à
@@ -94,10 +94,18 @@ fond coloré. Convention reprise partout via `border border-unc-border/30` ou
 /actualites                          Actualités (UNC66 + associations locales + archives)
 /notre-region                        Notre région (annuaire des associations locales)
 /contact                             Contact (coordonnées, horaires, carte)
-/admin                               Connexion espace privé (UI seule, pas branchée)
-/admin/dashboard                     Shell tableau de bord (UI seule, pas protégée)
+/admin                               Connexion espace privé (Firebase Auth)
+/admin/dashboard                     Vue d'ensemble (protégée)
+/admin/dashboard/mot-du-president    Édition du mot du Président (protégée)
+/admin/dashboard/agenda              CRUD agenda (protégée)
+/admin/dashboard/actualites          CRUD actualités (protégée)
+/admin/dashboard/documents           Upload/suppression documents Storage (protégée)
 *                                    404
 ```
+
+Les routes `/admin/dashboard/*` sont enveloppées par `<ProtectedRoute>`
+(`src/components/ProtectedRoute.jsx`) : redirige vers `/admin` si personne
+n'est connecté (état lu via `AuthContext`, basé sur `onAuthStateChanged`).
 
 Le menu **Présentation** est un méga-menu à 3 colonnes (`PresentationMenu.jsx`),
 fidèle à la maquette :
@@ -133,6 +141,69 @@ Galliéni, tél. 04 68 35 39 94, email `u.n.c.pyreneesorientales@gmail.com`
 (l'autre email vu sur une maquette, `contact@unc66.com`, était marqué « à
 créer » — à confirmer avec le client avant de l'utiliser).
 
+## Firebase — architecture backend
+
+Projet Firebase : **`site-unc66`** (voir `.firebaserc`). Trois produits
+utilisés : **Auth** (email/mot de passe, un seul compte admin existant),
+**Firestore** (contenu dynamique), **Storage** (fichiers uploadés). Pas
+d'Analytics (`getAnalytics` volontairement absent, inutile pour l'instant).
+
+### Modèle Firestore
+
+| Collection | Champs | Notes |
+|---|---|---|
+| `actualites/{id}` | `titre, contenu, date, imageUrl?, archive, createdAt` | `date` = string `"YYYY-MM-DD"` (pas un Timestamp, plus simple avec un `<input type="date">`). `archive` (bool) : ajouté par rapport à la demande initiale pour permettre un contrôle manuel de ce qui sort de la liste "en avant" — sans ce champ, impossible de distinguer proprement actualités actives / archivées. |
+| `agenda/{id}` | `titre, date, description, type, archive, createdAt` | Mêmes conventions. `type` = texte libre (ex: "Cérémonie", "Repas"), pas d'enum fixe. |
+| `motDuPresident/current` | `texte, updatedAt` | "Document unique" = id fixe `current` dans la collection `motDuPresident` (Firestore n'a pas de vrai singleton). |
+| `documents/{id}` | `nom, url, storagePath, uploadedAt` | `storagePath` ajouté par rapport à la demande initiale : nécessaire pour supprimer le bon fichier dans Storage (sans ça, `url` seule ne permet pas de retrouver la référence Storage à supprimer). |
+
+Toute la logique d'accès est dans **`src/services/`** (un fichier par
+collection : `actualites.js`, `agenda.js`, `motDuPresident.js`,
+`documents.js`) — aucun composant n'appelle Firestore/Storage directement,
+toujours en passant par ces services. `listActualites({archive})` et les
+équivalents agenda font le tri actif/archivé côté Firestore (`where`), pas
+côté client.
+
+### Authentification
+
+`src/context/AuthContext.jsx` expose `useAuth()` → `{ user, loading }` via
+`onAuthStateChanged`. `src/components/ProtectedRoute.jsx` protège les routes
+admin. `src/pages/admin/Login.jsx` utilise `signInWithEmailAndPassword` ; les
+codes d'erreur Firebase sont traduits en français par
+`src/lib/firebaseErrors.js` (`messageErreurFirebase(error)`). Un seul compte
+admin existe : "authentifié" équivaut à "admin" dans les règles de sécurité —
+pas de rôles/claims différenciés pour l'instant.
+
+### Règles de sécurité
+
+`firestore.rules` et `storage.rules` (à la racine) : **lecture publique**
+sur toutes les collections/fichiers listés ci-dessus, **écriture réservée
+aux utilisateurs authentifiés**. Tout le reste est fermé par défaut.
+
+**Déploiement des règles** (à faire une fois par le client, qui a les accès
+Firebase) :
+
+```bash
+firebase login
+firebase deploy --only firestore:rules,firestore:indexes,storage:rules
+```
+
+`firebase.json` et `.firebaserc` (déjà présents, pointent vers le projet
+`site-unc66`) permettent à cette commande de fonctionner sans configuration
+supplémentaire. `firestore.indexes.json` déclare les index composites
+nécessaires aux requêtes `where(archive) + orderBy(date)` utilisées par
+`actualites` et `agenda` — sans ce fichier déployé, Firestore refuse ces
+requêtes tant que l'index n'est pas créé (manuellement ou via ce fichier).
+
+### Limite connue
+
+Je n'ai pas les identifiants du compte admin réel : je n'ai donc pas pu
+tester moi-même la connexion ni un CRUD de bout en bout dans un vrai
+navigateur. Tout le code a été vérifié structurellement (compilation, build,
+absence d'erreur au chargement des modules) — le test fonctionnel complet
+(login → créer/modifier/supprimer une actualité → upload d'un document) reste
+à faire par quelqu'un qui a les accès.
+
 ## Conventions de code
 
 - Composants en `PascalCase`, un composant par fichier, dans `src/components/`
@@ -157,6 +228,7 @@ npm install
 npm run dev
 ```
 
-Le `.env` réel n'existe pas encore (seulement `.env.example`) : Firebase
-n'étant pas encore utilisé activement en phase 1, l'app tourne sans erreur
-même sans `.env` rempli.
+Le `.env` réel existe déjà en local (non versionné, voir `.gitignore`) et
+contient la config du projet Firebase `site-unc66`. Pour un nouveau poste de
+travail : copier `.env.example` en `.env` et remplir avec la config Firebase
+(console Firebase > Paramètres du projet > Vos applications > Config SDK).

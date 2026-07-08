@@ -1,7 +1,13 @@
 // Configuration Firebase — lue depuis les variables d'environnement Vite.
 // Aucune clé en dur ici : voir .env.example pour la liste des variables
 // attendues, et remplir un fichier .env (non versionné) avec les vraies valeurs.
+//
+// Pas d'Analytics (getAnalytics) pour l'instant : inutile en phase 2, à
+// ajouter plus tard si besoin.
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,3 +19,6 @@ const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);

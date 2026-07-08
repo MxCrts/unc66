@@ -1,0 +1,13 @@
+rules_version = '2';
+
+// Les documents uploadés (ex: bulletin d'adhésion, PDF divers) sont publics en
+// lecture (pour être téléchargeables depuis le site) mais l'upload/suppression
+// est réservé aux utilisateurs authentifiés (l'admin UNC 66).
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /documents/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}

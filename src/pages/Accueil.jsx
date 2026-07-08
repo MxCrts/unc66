@@ -1,12 +1,29 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Clock } from "lucide-react";
 import Logo from "../components/Logo";
-import PlaceholderBlock from "../components/PlaceholderBlock";
 import ActionCard from "../components/ActionCard";
 import { ACTIONS_RAPIDES, COORDONNEES } from "../data/siteContent";
+import { getDerniereActualite } from "../services/actualites";
 import heroActuelle from "../assets/hero-actuelle.jpg";
 import heroArchive from "../assets/hero-archive.jpg";
 
 export default function Accueil() {
+  const [derniereActu, setDerniereActu] = useState(null);
+  const [loadingActu, setLoadingActu] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setDerniereActu(await getDerniereActualite());
+      } catch {
+        setDerniereActu(null);
+      } finally {
+        setLoadingActu(false);
+      }
+    })();
+  }, []);
+
   return (
     <div>
       {/* Bandeau hero : 2 photos en fond + logo/titre en surimpression (dégradé pour la lisibilité) */}
@@ -89,7 +106,20 @@ export default function Accueil() {
           <h2 className="text-sm font-bold uppercase tracking-wide text-unc-navy mb-3">
             Dernière actualité
           </h2>
-          <PlaceholderBlock>contenu de la dernière actualité (titre, extrait, lien).</PlaceholderBlock>
+          {loadingActu ? (
+            <p className="text-sm text-unc-gray/60">Chargement…</p>
+          ) : derniereActu ? (
+            <div>
+              <p className="text-xs text-unc-gray/60 mb-1">{derniereActu.date}</p>
+              <h3 className="font-bold text-unc-navy mb-1">{derniereActu.titre}</h3>
+              <p className="text-sm text-unc-gray line-clamp-4 whitespace-pre-line">{derniereActu.contenu}</p>
+              <Link to="/actualites" className="inline-block mt-3 text-sm text-unc-navy font-semibold hover:underline">
+                Voir toutes les actualités →
+              </Link>
+            </div>
+          ) : (
+            <p className="text-sm text-unc-gray/60 italic">Aucune actualité pour le moment.</p>
+          )}
         </div>
       </section>
     </div>
