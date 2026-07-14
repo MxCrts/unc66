@@ -25,16 +25,19 @@ export default function Hero() {
       <div className="absolute inset-0 bg-gradient-to-b from-unc-navy/75 via-unc-navy/65 to-unc-navy/85" />
 
       <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
-        <div className="bg-white rounded-xl px-5 py-3.5 shadow-lg">
+        <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold tracking-wide text-white drop-shadow-sm">
+          Union Nationale des Combattants
+        </h1>
+        <div className="mt-4 bg-white rounded-xl px-5 py-3.5 shadow-lg">
           <Logo size={72} />
         </div>
-        <p className="mt-5 text-sm sm:text-base italic tracking-wide text-white/85">
+        <p className="mt-4 text-sm sm:text-base italic tracking-wide text-white/85">
           Aujourd'hui... comme hier
         </p>
-        <h1 className="mt-2 text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white max-w-3xl leading-tight drop-shadow-sm">
+        <p className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white max-w-3xl leading-tight drop-shadow-sm">
           L'UNC défend les droits des combattants et des blessés
-        </h1>
-        <p className="mt-4 text-white/85 max-w-xl text-sm sm:text-base">
+        </p>
+        <p className="mt-4 text-white font-semibold max-w-2xl text-base sm:text-lg lg:text-xl">
           La Fédération UNC des Pyrénées-Orientales « UNC 66 »
         </p>
       </div>

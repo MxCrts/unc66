@@ -25,7 +25,7 @@ export const PRESENTATION_MENU = [
   {
     titre: "Qui sommes-nous ?",
     items: [
-      { label: "L'UNC", href: PLACEHOLDER_UNC_FR },
+      { label: "L'UNC", href: "https://www.unc.fr/presentation/qui-sommes-nous/lunc" },
       { label: "Buts et objectifs", href: PLACEHOLDER_UNC_FR },
       { label: "Historique", href: PLACEHOLDER_UNC_FR },
       { label: "Fondateurs", href: PLACEHOLDER_UNC_FR },
@@ -42,7 +42,7 @@ export const PRESENTATION_MENU = [
   {
     titre: "L'UNC en actions",
     items: [
-      { label: "Les comités consultatifs", href: PLACEHOLDER_UNC_FR },
+      { label: "Les comités consultatifs", href: "https://www.unc.fr/presentation/unc-en-actions/les-comites-consultatifs" },
       { label: "Action civique et mémoire", href: PLACEHOLDER_UNC_FR },
       { label: "Action sociale et solidarité", href: PLACEHOLDER_UNC_FR },
       { label: "Aide aux blessés", href: PLACEHOLDER_UNC_FR },
@@ -67,40 +67,71 @@ export const NAV_LINKS = [
 
 // Icônes d'actions rapides de la page d'accueil. Toutes en lien externe sauf
 // "Partenaires", qui pointe vers la page interne du site (voir CLAUDE.md).
+// "Adhérer" reste sur PLACEHOLDER_UNC_FR : le client fournira un bulletin
+// d'adhésion PDF ("en cours") à mettre en lien à la place.
 export const ACTIONS_RAPIDES = [
-  { label: "Magazine", icon: "BookOpen", href: PLACEHOLDER_UNC_FR },
+  { label: "Magazine", icon: "BookOpen", href: "https://www.unc.fr/index.php#voix-combattant" },
   { label: "Adhérer", icon: "UserPlus", href: PLACEHOLDER_UNC_FR },
-  { label: "Blessés", icon: "HeartHandshake", href: PLACEHOLDER_UNC_FR },
-  { label: "Reconversion", icon: "Briefcase", href: PLACEHOLDER_UNC_FR },
+  { label: "Blessés", icon: "HeartHandshake", href: "https://www.unc.fr/presentation/unc-en-actions/aide-et-suivi-des-blesses" },
+  { label: "Reconversion", icon: "Briefcase", href: "https://www.unc.fr/reconversion" },
   { label: "Partenaires", icon: "Handshake", to: "/partenaires", internal: true },
-  { label: "Assistance", icon: "LifeBuoy", href: PLACEHOLDER_UNC_FR },
+  { label: "Assistance", icon: "LifeBuoy", href: "https://www.unc.fr/assistance-juridique-et-sociale" },
 ];
 
-// Partenaires (grille logos + noms), regroupés par catégorie comme sur la maquette.
+// Partenaires (grille logos + noms + lien), regroupés par catégorie comme sur la
+// maquette. `url` = site officiel du partenaire (ouvert dans un nouvel onglet).
+// Les logos réels ne sont pas encore fournis par le client → PlaceholderImage
+// en attendant les vrais visuels.
 export const PARTENAIRES = [
   {
     categorie: "Institutions",
     items: [
-      { nom: "Délégation militaire départementale (DMD66)" },
-      { nom: "Office national des anciens combattants et victimes de guerre (ONaCVG66)" },
-      { nom: "Actions sociales des armées (ASA)" },
+      {
+        nom: "Délégation militaire départementale (DMD66)",
+        url: "https://www.defense.gouv.fr/defense-sud-est/nos-unites/nos-delegations-militaires-departementales",
+      },
+      {
+        nom: "Office national des anciens combattants et victimes de guerre (ONaCVG66)",
+        url: "https://www.defense.gouv.fr/sga/au-service-agents/soutien-aux-blesses/guide-du-blesse/fiches-thematiques/loffice-national-combattants-victimes",
+      },
+      {
+        nom: "Actions sociales des armées (ASA)",
+        url: "https://www.defense.gouv.fr/sga/au-service-agents/laction-sociale-au-profit-agents/offres-service-laction-sociale-armees",
+      },
     ],
   },
   {
     categorie: "Reconversion",
     items: [
-      { nom: "Implic'Action" },
-      { nom: "Défense Mobilité" },
-      { nom: "ANOCR" },
+      { nom: "Implic'Action", url: "https://www.implicaction.eu" },
+      { nom: "Défense Mobilité", url: "https://www.defense.gouv.fr/defense-mobilite" },
+      {
+        nom: "Association nationale des officiers de carrière et sous contrat en retraite (ANOCR)",
+        url: "https://www.anocr.org/",
+      },
     ],
   },
   {
     categorie: "Blessés",
-    items: [{ nom: "Gueules Cassées — Union des blessés de la face et de la tête" }],
+    items: [
+      {
+        nom: "Gueules Cassées — Union des blessés de la face et de la tête",
+        url: "https://www.gueules-cassees.asso.fr/",
+      },
+      {
+        nom: "Maison numérique des blessés",
+        url: "https://maison-des-blesses.defense.gouv.fr/",
+      },
+    ],
   },
   {
     categorie: "Retraite mutualiste du combattant",
-    items: [{ nom: "La France Mutualiste" }],
+    items: [
+      {
+        nom: "La France Mutualiste",
+        url: "https://www.la-france-mutualiste.fr/retraite-mutualiste-du-combattant",
+      },
+    ],
   },
 ];
 

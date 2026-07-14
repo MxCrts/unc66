@@ -1,3 +1,4 @@
+import { ExternalLink } from "lucide-react";
 import PageHeader from "../components/PageHeader";
 import PlaceholderImage from "../components/PlaceholderImage";
 import { PARTENAIRES } from "../data/siteContent";
@@ -14,13 +15,19 @@ export default function Partenaires() {
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {groupe.items.map((partenaire) => (
-                <div
+                <a
                   key={partenaire.nom}
-                  className="border border-unc-border/30 rounded-lg p-4 flex flex-col items-center gap-3 text-center"
+                  href={partenaire.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group border border-unc-border/30 hover:border-unc-border/60 rounded-lg p-4 flex flex-col items-center gap-3 text-center transition-colors hover:shadow-sm"
                 >
                   <PlaceholderImage label="logo" className="w-full h-16 rounded" />
-                  <span className="text-sm text-unc-gray">{partenaire.nom}</span>
-                </div>
+                  <span className="text-sm text-unc-gray group-hover:text-unc-navy transition-colors inline-flex items-center gap-1.5">
+                    {partenaire.nom}
+                    <ExternalLink className="w-3 h-3 opacity-40 shrink-0" />
+                  </span>
+                </a>
               ))}
             </div>
           </section>
