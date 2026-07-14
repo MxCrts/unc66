@@ -2,6 +2,18 @@
 // éviter de le disperser dans les composants. Les valeurs marquées [À REMPLIR]
 // ou pointant vers PLACEHOLDER_UNC_FR sont provisoires — voir CLAUDE.md.
 
+// Logos des partenaires (fournis par le client). Importés en tant qu'assets
+// Vite pour bénéficier du hash/optimisation au build.
+import logoDMD from "../assets/partenaires/dmd66.jpg";
+import logoOnacvg from "../assets/partenaires/onacvg.jpg";
+import logoASA from "../assets/partenaires/asa.jpg";
+import logoImplicAction from "../assets/partenaires/implic-action.png";
+import logoDefenseMobilite from "../assets/partenaires/defense-mobilite.png";
+import logoAnocr from "../assets/partenaires/anocr.jpg";
+import logoGueulesCassees from "../assets/partenaires/gueules-cassees.jpeg";
+import logoMaisonNumerique from "../assets/partenaires/maison-numerique-blesses.png";
+import logoFranceMutualiste from "../assets/partenaires/france-mutualiste.png";
+
 // URL de base du site national, en attendant les vraies URLs profondes que le
 // client doit fournir pour chaque lien externe (Historique, Fondateurs, etc.)
 export const PLACEHOLDER_UNC_FR = "https://www.unc.fr";
@@ -89,25 +101,29 @@ export const PARTENAIRES = [
       {
         nom: "Délégation militaire départementale (DMD66)",
         url: "https://www.defense.gouv.fr/defense-sud-est/nos-unites/nos-delegations-militaires-departementales",
+        logo: logoDMD,
       },
       {
         nom: "Office national des anciens combattants et victimes de guerre (ONaCVG66)",
         url: "https://www.defense.gouv.fr/sga/au-service-agents/soutien-aux-blesses/guide-du-blesse/fiches-thematiques/loffice-national-combattants-victimes",
+        logo: logoOnacvg,
       },
       {
         nom: "Actions sociales des armées (ASA)",
         url: "https://www.defense.gouv.fr/sga/au-service-agents/laction-sociale-au-profit-agents/offres-service-laction-sociale-armees",
+        logo: logoASA,
       },
     ],
   },
   {
     categorie: "Reconversion",
     items: [
-      { nom: "Implic'Action", url: "https://www.implicaction.eu" },
-      { nom: "Défense Mobilité", url: "https://www.defense.gouv.fr/defense-mobilite" },
+      { nom: "Implic'Action", url: "https://www.implicaction.eu", logo: logoImplicAction },
+      { nom: "Défense Mobilité", url: "https://www.defense.gouv.fr/defense-mobilite", logo: logoDefenseMobilite },
       {
         nom: "Association nationale des officiers de carrière et sous contrat en retraite (ANOCR)",
         url: "https://www.anocr.org/",
+        logo: logoAnocr,
       },
     ],
   },
@@ -117,10 +133,12 @@ export const PARTENAIRES = [
       {
         nom: "Gueules Cassées — Union des blessés de la face et de la tête",
         url: "https://www.gueules-cassees.asso.fr/",
+        logo: logoGueulesCassees,
       },
       {
         nom: "Maison numérique des blessés",
         url: "https://maison-des-blesses.defense.gouv.fr/",
+        logo: logoMaisonNumerique,
       },
     ],
   },
@@ -130,6 +148,7 @@ export const PARTENAIRES = [
       {
         nom: "La France Mutualiste",
         url: "https://www.la-france-mutualiste.fr/retraite-mutualiste-du-combattant",
+        logo: logoFranceMutualiste,
       },
     ],
   },

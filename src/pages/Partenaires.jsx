@@ -22,7 +22,18 @@ export default function Partenaires() {
                   rel="noopener noreferrer"
                   className="group border border-unc-border/30 hover:border-unc-border/60 rounded-lg p-4 flex flex-col items-center gap-3 text-center transition-colors hover:shadow-sm"
                 >
-                  <PlaceholderImage label="logo" className="w-full h-16 rounded" />
+                  {partenaire.logo ? (
+                    <div className="w-full h-20 flex items-center justify-center">
+                      <img
+                        src={partenaire.logo}
+                        alt={`Logo ${partenaire.nom}`}
+                        loading="lazy"
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <PlaceholderImage label="logo" className="w-full h-20 rounded" />
+                  )}
                   <span className="text-sm text-unc-gray group-hover:text-unc-navy transition-colors inline-flex items-center gap-1.5">
                     {partenaire.nom}
                     <ExternalLink className="w-3 h-3 opacity-40 shrink-0" />

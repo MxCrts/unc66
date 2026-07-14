@@ -1,6 +1,6 @@
-import Logo from "../Logo";
 import heroActuelle from "../../assets/hero-actuelle.jpg";
 import heroArchive from "../../assets/hero-archive.jpg";
+import logoUncNational from "../../assets/logo-unc-national.png";
 
 // Bandeau hero de l'accueil : les deux photos client (aujourd'hui / archive)
 // en fond côte à côte, voile marine dégradé pour la lisibilité, logo + titre
@@ -28,8 +28,12 @@ export default function Hero() {
         <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold tracking-wide text-white drop-shadow-sm">
           Union Nationale des Combattants
         </h1>
-        <div className="mt-4 bg-white rounded-xl px-5 py-3.5 shadow-lg">
-          <Logo size={72} />
+        <div className="mt-4 bg-white rounded-xl px-5 py-4 shadow-lg">
+          <img
+            src={logoUncNational}
+            alt="Blason de l'Union Nationale des Combattants"
+            className="h-20 sm:h-24 w-auto object-contain"
+          />
         </div>
         <p className="mt-4 text-sm sm:text-base italic tracking-wide text-white/85">
           Aujourd'hui... comme hier
