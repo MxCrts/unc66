@@ -15,6 +15,21 @@ import logoMaisonNumerique from "../assets/partenaires/maison-numerique-blesses.
 import logoFranceMutualiste from "../assets/partenaires/france-mutualiste.png";
 import logoMutuelleMondeCombattant from "../assets/partenaires/mutuelle-monde-combattant.png";
 
+// Photos des blocs latéraux de l'accueil (fournies par le client).
+import imgCadetsDefense from "../assets/accueil/cadets-defense-perpignan.png";
+import imgEscadrilleAir from "../assets/accueil/escadrille-air-narbonne.png";
+import imgCadetsGendarmerie from "../assets/accueil/cadets-gendarmerie-perpignan.png";
+import imgPrepaMarine from "../assets/accueil/prepa-militaire-marine.png";
+import imgCentreMemoire from "../assets/accueil/centre-memoire-combattante.png";
+import imgJeunesQuartier from "../assets/accueil/jeunes-quartier-perpignan.png";
+import imgClasseStLouis from "../assets/accueil/classe-defense-st-louis-gonzague.png";
+import imgCnecCollioure from "../assets/accueil/cnec-cin-collioure.png";
+import imgGendarmerieGgd from "../assets/accueil/gendarmerie-ggd-perpignan.png";
+import imgPoliceNationale from "../assets/accueil/police-nationale-perpignan.png";
+import imgPoliceMunicipale from "../assets/accueil/police-municipale-perpignan.png";
+import imgSdis66 from "../assets/accueil/sdis-66-perpignan.png";
+import imgProtectionCivile from "../assets/accueil/protection-civile-perpignan.png";
+
 // URL de base du site national, en attendant les vraies URLs profondes que le
 // client doit fournir pour chaque lien externe (Historique, Fondateurs, etc.)
 export const PLACEHOLDER_UNC_FR = "https://www.unc.fr";
@@ -201,25 +216,23 @@ export const ASSOCIATIONS_LOCALES = VILLES_ASSOCIATIONS.map((ville) => ({
   adresse: "[À REMPLIR]",
 }));
 
-// Blocs latéraux de l'accueil (demande client). Les vraies photos n'ont pas
-// encore été fournies séparément → `image` reste indéfini et on affiche un
-// PlaceholderImage avec la légende. Pour livrer : importer la photo en asset et
-// renseigner `image` sur l'entrée correspondante.
+// Blocs latéraux de l'accueil (demande client). Photos réelles fournies par le
+// client. `image` indéfini => PlaceholderImage de repli avec la légende.
 export const BLOC_JEUNESSE = [
-  { legende: "Cadets Défense Perpignan" },
-  { legende: "Escadrille Air Jeunesse Narbonne" },
-  { legende: "Cadets Gendarmerie Perpignan" },
-  { legende: "Préparation Militaire Marine CM Fort Perpignan" },
-  { legende: "Centre départemental de la Mémoire Combattante Perpignan" },
-  { legende: "Jeunes Quartier Perpignan" },
-  { legende: "Classe défense St Louis de Gonzague Perpignan" },
+  { legende: "Cadets Défense Perpignan", image: imgCadetsDefense },
+  { legende: "Escadrille Air Jeunesse Narbonne", image: imgEscadrilleAir },
+  { legende: "Cadets Gendarmerie Perpignan", image: imgCadetsGendarmerie },
+  { legende: "Préparation Militaire Marine CM Fort Perpignan", image: imgPrepaMarine },
+  { legende: "Centre départemental de la Mémoire Combattante Perpignan", image: imgCentreMemoire },
+  { legende: "Jeunes Quartier Perpignan", image: imgJeunesQuartier },
+  { legende: "Classe défense St Louis de Gonzague Perpignan", image: imgClasseStLouis },
 ];
 
 export const BLOC_UNITES_PARTENAIRES = [
-  { legende: "CNEC CIN Collioure" },
-  { legende: "Gendarmerie GGD Perpignan" },
-  { legende: "Police Nationale Perpignan" },
-  { legende: "Police Municipale Perpignan" },
-  { legende: "SDIS 66 Perpignan" },
-  { legende: "Protection Civile Perpignan" },
+  { legende: "CNEC CIN Collioure", image: imgCnecCollioure },
+  { legende: "Gendarmerie GGD Perpignan", image: imgGendarmerieGgd },
+  { legende: "Police Nationale Perpignan", image: imgPoliceNationale },
+  { legende: "Police Municipale Perpignan", image: imgPoliceMunicipale },
+  { legende: "SDIS 66 Perpignan", image: imgSdis66 },
+  { legende: "Protection Civile Perpignan", image: imgProtectionCivile },
 ];
