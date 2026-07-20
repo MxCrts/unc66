@@ -12,12 +12,15 @@ import Agenda from "./pages/Agenda";
 import Partenaires from "./pages/Partenaires";
 import Actualites from "./pages/Actualites";
 import NotreRegion from "./pages/NotreRegion";
+import Adherer from "./pages/Adherer";
 import Contact from "./pages/Contact";
 import Login from "./pages/admin/Login";
 import Overview from "./pages/admin/Overview";
 import MotDuPresidentAdmin from "./pages/admin/MotDuPresidentAdmin";
 import AgendaAdmin from "./pages/admin/AgendaAdmin";
 import ActualitesAdmin from "./pages/admin/ActualitesAdmin";
+import ActualitesLocalesAdmin from "./pages/admin/ActualitesLocalesAdmin";
+import NotreRegionAdmin from "./pages/admin/NotreRegionAdmin";
 import DocumentsAdmin from "./pages/admin/DocumentsAdmin";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +40,7 @@ export default function App() {
             <Route path="/partenaires" element={<Partenaires />} />
             <Route path="/actualites" element={<Actualites />} />
             <Route path="/notre-region" element={<NotreRegion />} />
+            <Route path="/adherer" element={<Adherer />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Route>
@@ -51,6 +55,8 @@ export default function App() {
               <Route path="mot-du-president" element={<MotDuPresidentAdmin />} />
               <Route path="agenda" element={<AgendaAdmin />} />
               <Route path="actualites" element={<ActualitesAdmin />} />
+              <Route path="actualites-locales" element={<ActualitesLocalesAdmin />} />
+              <Route path="notre-region" element={<NotreRegionAdmin />} />
               <Route path="documents" element={<DocumentsAdmin />} />
             </Route>
           </Route>

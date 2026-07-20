@@ -34,17 +34,29 @@ Pages opérationnel, Firebase branché — Auth (login admin), Firestore
 (actualités, agenda, mot du Président) et Storage (documents) avec CRUD complet
 côté admin et lecture publique côté site. Voir section « Firebase » plus bas.
 
+**Phase 3 (faite — retours client)** : onglets Adhérer et Partenaires ajoutés à
+la nav ; page `/adherer` ("Nous rejoindre") ; tous les boutons Adhérer (accueil,
+page Adhérer, Notre organisation) téléchargent le **bulletin d'adhésion PDF**
+(`public/bulletin-adhesion-unc66.pdf`, constante `BULLETIN_ADHESION_URL`) ; blocs
+latéraux accueil "La jeunesse" / "Nos unités partenaires" (photos en placeholder,
+données dans `BLOC_JEUNESSE` / `BLOC_UNITES_PARTENAIRES`) ; contenu réel de "Notre
+organisation" ; email `contact@unc66.com` partout ; scroll-to-top au changement
+de page (`ScrollToTop`) ; bouton "retour au site" sur la page de connexion admin ;
+partenaire Mutuelle du Monde Combattant ajouté ; **Notre région** et **Actualités
+des associations locales** désormais éditables depuis l'admin (Firestore).
+
 **Reste à faire** :
-- Remplacer les URLs externes placeholder vers unc.fr par les vraies (voir plus bas)
-- Renseigner les infos des 9 associations locales (`Notre région`) — toujours
-  en dur dans `src/data/siteContent.js`, pas encore en Firestore
-- Remplacer les logos `PlaceholderImage` des partenaires par les vrais visuels
-- Déployer `firestore.rules` / `storage.rules` / `firestore.indexes.json` sur
-  le vrai projet Firebase (le client doit lancer `firebase login` lui-même —
-  commandes exactes dans la section Firebase)
-- Éventuellement : gérer les partenaires et les associations locales depuis
-  l'admin (actuellement seuls actualités / agenda / mot du Président / documents
-  sont dynamiques, par périmètre explicite de la demande client)
+- Fournir les vraies **photos des blocs latéraux** de l'accueil (La jeunesse /
+  Nos unités partenaires) : importer chaque asset et renseigner `image` sur
+  l'entrée correspondante dans `BLOC_JEUNESSE` / `BLOC_UNITES_PARTENAIRES`
+- Créer réellement la boîte mail `contact@unc66.com` (l'adresse est déjà câblée
+  partout côté site)
+- Remplacer les URLs externes placeholder restantes vers unc.fr par les vraies
+- **Redéployer les règles Firestore** (`actualitesLocales` et `associationsLocales`
+  viennent d'être ajoutées à `firestore.rules`) — le client lance `firebase login`
+  puis `firebase deploy --only firestore:rules` (voir section Firebase)
+- Éventuellement : gérer les partenaires depuis l'admin (encore en dur dans
+  `siteContent.js`, par périmètre explicite de la demande client)
 
 ## Charte graphique (extraite des maquettes client)
 
@@ -93,12 +105,16 @@ fond coloré. Convention reprise partout via `border border-unc-border/30` ou
 /partenaires                         Partenaires (grille logos)
 /actualites                          Actualités (UNC66 + associations locales + archives)
 /notre-region                        Notre région (annuaire des associations locales)
+/adherer                             Adhérer (page "Nous rejoindre", boutons -> bulletin PDF)
+/partenaires                         Partenaires (onglet de nav dédié)
 /contact                             Contact (coordonnées, horaires, carte)
 /admin                               Connexion espace privé (Firebase Auth)
 /admin/dashboard                     Vue d'ensemble (protégée)
 /admin/dashboard/mot-du-president    Édition du mot du Président (protégée)
 /admin/dashboard/agenda              CRUD agenda (protégée)
-/admin/dashboard/actualites          CRUD actualités (protégée)
+/admin/dashboard/actualites          CRUD actualités fédérales (protégée)
+/admin/dashboard/actualites-locales  CRUD actualités des associations locales (protégée)
+/admin/dashboard/notre-region        Édition annuaire des associations locales (protégée)
 /admin/dashboard/documents           Upload/suppression documents Storage (protégée)
 *                                    404
 ```
@@ -137,9 +153,9 @@ remplacé par des lectures Firestore (mêmes formes de données autant que possi
 pour limiter la casse dans les composants qui les consomment).
 
 Coordonnées actuelles (`COORDONNEES`) : adresse Maison du combattant / Caserne
-Galliéni, tél. 04 68 35 39 94, email `u.n.c.pyreneesorientales@gmail.com`
-(l'autre email vu sur une maquette, `contact@unc66.com`, était marqué « à
-créer » — à confirmer avec le client avant de l'utiliser).
+Galliéni, tél. 04 68 35 39 94, email `contact@unc66.com` (adresse retenue par le
+client, à créer côté messagerie ; remplace l'ancien `u.n.c.pyreneesorientales@gmail.com`
+partout sur le site).
 
 ## Firebase — architecture backend
 
@@ -156,6 +172,8 @@ d'Analytics (`getAnalytics` volontairement absent, inutile pour l'instant).
 | `agenda/{id}` | `titre, date, description, type, archive, createdAt` | Mêmes conventions. `type` = texte libre (ex: "Cérémonie", "Repas"), pas d'enum fixe. |
 | `motDuPresident/current` | `texte, imageUrl?, imageStoragePath?, updatedAt` | "Document unique" = id fixe `current` dans la collection `motDuPresident` (Firestore n'a pas de vrai singleton). `imageUrl`/`imageStoragePath` : photo du Président uploadée depuis l'admin (dossier Storage `president/`), même logique que `documents.storagePath` — remplacement/retrait d'une photo supprime l'ancien fichier Storage. |
 | `documents/{id}` | `nom, url, storagePath, uploadedAt` | `storagePath` ajouté par rapport à la demande initiale : nécessaire pour supprimer le bon fichier dans Storage (sans ça, `url` seule ne permet pas de retrouver la référence Storage à supprimer). |
+| `actualitesLocales/{id}` | `ville, titre, contenu, date, createdAt` | Actualités publiées au nom d'une association locale (par commune). `ville` ∈ `VILLES_ASSOCIATIONS`. Récupérées en bloc (`orderBy date desc`) puis regroupées par commune côté client — pas de `where(ville)+orderBy` pour éviter un index composite. |
+| `associationsLocales/{id}` | `ville, nom, adresse, telephone, email, updatedAt` | Annuaire "Notre région". **id = slug de la ville** (`slugVille()`), donc upsert idempotent (une fiche par commune, jamais de doublon). Squelette = les 9 `VILLES_ASSOCIATIONS` ; commune sans fiche => affichée « [À REMPLIR] ». |
 
 Toute la logique d'accès est dans **`src/services/`** (un fichier par
 collection : `actualites.js`, `agenda.js`, `motDuPresident.js`,

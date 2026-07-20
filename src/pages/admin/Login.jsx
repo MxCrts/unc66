@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { Lock, AlertCircle } from "lucide-react";
+import { Lock, AlertCircle, ArrowLeft } from "lucide-react";
 import { auth } from "../../firebase";
 import { useAuth } from "../../context/AuthContext";
 import { messageErreurFirebase } from "../../lib/firebaseErrors";
@@ -36,7 +36,16 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-unc-bg-soft flex items-center justify-center px-4">
+    <div className="min-h-screen bg-unc-bg-soft flex flex-col items-center justify-center px-4">
+      <div className="w-full max-w-sm mb-4">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-sm text-unc-gray hover:text-unc-navy transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour au site
+        </Link>
+      </div>
       <div className="w-full max-w-sm bg-white border border-unc-border/30 rounded-xl shadow-lg p-8">
         <div className="flex flex-col items-center mb-6">
           <Logo size={56} />

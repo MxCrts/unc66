@@ -5,6 +5,8 @@ import {
   FileText,
   CalendarDays,
   Newspaper,
+  Megaphone,
+  MapPin,
   FolderOpen,
   LogOut,
 } from "lucide-react";
@@ -17,6 +19,8 @@ const SECTIONS = [
   { to: "/admin/dashboard/mot-du-president", label: "Mot du Président", icon: FileText },
   { to: "/admin/dashboard/agenda", label: "Agenda", icon: CalendarDays },
   { to: "/admin/dashboard/actualites", label: "Actualités", icon: Newspaper },
+  { to: "/admin/dashboard/actualites-locales", label: "Actualités locales", icon: Megaphone },
+  { to: "/admin/dashboard/notre-region", label: "Notre région", icon: MapPin },
   { to: "/admin/dashboard/documents", label: "Documents", icon: FolderOpen },
 ];
 

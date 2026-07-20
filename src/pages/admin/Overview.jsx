@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
-import { FileText, CalendarDays, Newspaper, FolderOpen } from "lucide-react";
+import { FileText, CalendarDays, Newspaper, Megaphone, MapPin, FolderOpen } from "lucide-react";
 
 const SECTIONS = [
   { to: "/admin/dashboard/mot-du-president", label: "Mot du Président", icon: FileText, desc: "Éditer le texte affiché sur la page publique." },
   { to: "/admin/dashboard/agenda", label: "Agenda", icon: CalendarDays, desc: "Créer, modifier, archiver les événements." },
   { to: "/admin/dashboard/actualites", label: "Actualités", icon: Newspaper, desc: "Publier et archiver les actualités du site." },
+  { to: "/admin/dashboard/actualites-locales", label: "Actualités locales", icon: Megaphone, desc: "Publier les actualités des 9 associations locales." },
+  { to: "/admin/dashboard/notre-region", label: "Notre région", icon: MapPin, desc: "Renseigner les coordonnées des associations locales." },
   { to: "/admin/dashboard/documents", label: "Documents", icon: FolderOpen, desc: "Uploader et gérer les fichiers (PDF, etc.)." },
 ];
 

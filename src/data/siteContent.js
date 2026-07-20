@@ -13,10 +13,16 @@ import logoAnocr from "../assets/partenaires/anocr.jpg";
 import logoGueulesCassees from "../assets/partenaires/gueules-cassees.jpeg";
 import logoMaisonNumerique from "../assets/partenaires/maison-numerique-blesses.png";
 import logoFranceMutualiste from "../assets/partenaires/france-mutualiste.png";
+import logoMutuelleMondeCombattant from "../assets/partenaires/mutuelle-monde-combattant.png";
 
 // URL de base du site national, en attendant les vraies URLs profondes que le
 // client doit fournir pour chaque lien externe (Historique, Fondateurs, etc.)
 export const PLACEHOLDER_UNC_FR = "https://www.unc.fr";
+
+// Bulletin d'adhésion (PDF remplissable fourni par le client). Servi comme asset
+// statique depuis /public pour un lien de téléchargement stable ; tous les
+// boutons "Adhérer" pointent dessus. BASE_URL gère le préfixe GitHub Pages.
+export const BULLETIN_ADHESION_URL = `${import.meta.env.BASE_URL}bulletin-adhesion-unc66.pdf`;
 
 export const COORDONNEES = {
   nom: "UNC 66 — Maison du combattant",
@@ -24,7 +30,7 @@ export const COORDONNEES = {
   codePostal: "66000",
   ville: "Perpignan",
   telephone: "04 68 35 39 94",
-  email: "u.n.c.pyreneesorientales@gmail.com",
+  email: "contact@unc66.com",
   horaires: [
     { jours: "Mardi", plage: "9h00 – 11h00" },
     { jours: "Vendredi (après-midi)", plage: "14h00 – 16h00, sur rendez-vous" },
@@ -33,14 +39,21 @@ export const COORDONNEES = {
 
 // Méga-menu "Présentation", structure fidèle à la maquette (3 colonnes).
 // internal: true -> route interne du site. Sinon lien externe (le plus souvent unc.fr).
+//
+// Demande client (MODIF13) : dans "Qui sommes-nous ?", les 4 liens pointent tous
+// vers la MÊME page unc.fr (qui-sommes-nous/lunc) ; idem "L'UNC en actions", les
+// 8 liens pointent tous vers la même page (unc-en-actions/les-comites-consultatifs).
+const URL_QUI_SOMMES_NOUS = "https://www.unc.fr/presentation/qui-sommes-nous/lunc";
+const URL_UNC_EN_ACTIONS = "https://www.unc.fr/presentation/unc-en-actions/les-comites-consultatifs";
+
 export const PRESENTATION_MENU = [
   {
     titre: "Qui sommes-nous ?",
     items: [
-      { label: "L'UNC", href: "https://www.unc.fr/presentation/qui-sommes-nous/lunc" },
-      { label: "Buts et objectifs", href: PLACEHOLDER_UNC_FR },
-      { label: "Historique", href: PLACEHOLDER_UNC_FR },
-      { label: "Fondateurs", href: PLACEHOLDER_UNC_FR },
+      { label: "L'UNC", href: URL_QUI_SOMMES_NOUS },
+      { label: "Buts et objectifs", href: URL_QUI_SOMMES_NOUS },
+      { label: "Historique", href: URL_QUI_SOMMES_NOUS },
+      { label: "Fondateurs", href: URL_QUI_SOMMES_NOUS },
     ],
   },
   {
@@ -54,14 +67,14 @@ export const PRESENTATION_MENU = [
   {
     titre: "L'UNC en actions",
     items: [
-      { label: "Les comités consultatifs", href: "https://www.unc.fr/presentation/unc-en-actions/les-comites-consultatifs" },
-      { label: "Action civique et mémoire", href: PLACEHOLDER_UNC_FR },
-      { label: "Action sociale et solidarité", href: PLACEHOLDER_UNC_FR },
-      { label: "Aide aux blessés", href: PLACEHOLDER_UNC_FR },
-      { label: "Aide et entraide des veuves et orphelins de guerre", href: PLACEHOLDER_UNC_FR },
-      { label: "Associations affiliées", href: PLACEHOLDER_UNC_FR },
-      { label: "Législation", href: PLACEHOLDER_UNC_FR },
-      { label: "Reconversion", href: PLACEHOLDER_UNC_FR },
+      { label: "Les comités consultatifs", href: URL_UNC_EN_ACTIONS },
+      { label: "Action civique et mémoire", href: URL_UNC_EN_ACTIONS },
+      { label: "Action sociale et solidarité", href: URL_UNC_EN_ACTIONS },
+      { label: "Aide aux blessés", href: URL_UNC_EN_ACTIONS },
+      { label: "Aide et entraide des veuves et orphelins de guerre", href: URL_UNC_EN_ACTIONS },
+      { label: "Associations affiliées", href: URL_UNC_EN_ACTIONS },
+      { label: "Législation", href: URL_UNC_EN_ACTIONS },
+      { label: "Reconversion", href: URL_UNC_EN_ACTIONS },
     ],
   },
 ];
@@ -74,19 +87,19 @@ export const NAV_LINKS = [
   { label: "Agenda", to: "/agenda" },
   { label: "Actualités", to: "/actualites" },
   { label: "Notre région", to: "/notre-region" },
+  { label: "Partenaires", to: "/partenaires" },
+  { label: "Adhérer", to: "/adherer" },
   { label: "Contact", to: "/contact" },
 ];
 
-// Icônes d'actions rapides de la page d'accueil. Toutes en lien externe sauf
-// "Partenaires", qui pointe vers la page interne du site (voir CLAUDE.md).
-// "Adhérer" reste sur PLACEHOLDER_UNC_FR : le client fournira un bulletin
-// d'adhésion PDF ("en cours") à mettre en lien à la place.
+// Icônes d'actions rapides de la page d'accueil (liens externes unc.fr).
+// "Adhérer" et "Partenaires" ont été retirés d'ici (demande client) : Adhérer
+// est désormais un onglet + un grand bouton en bas d'accueil (vers la page
+// interne /adherer), Partenaires est un onglet de nav dédié (page /partenaires).
 export const ACTIONS_RAPIDES = [
   { label: "Magazine", icon: "BookOpen", href: "https://www.unc.fr/index.php#voix-combattant" },
-  { label: "Adhérer", icon: "UserPlus", href: PLACEHOLDER_UNC_FR },
   { label: "Blessés", icon: "HeartHandshake", href: "https://www.unc.fr/presentation/unc-en-actions/aide-et-suivi-des-blesses" },
   { label: "Reconversion", icon: "Briefcase", href: "https://www.unc.fr/reconversion" },
-  { label: "Partenaires", icon: "Handshake", to: "/partenaires", internal: true },
   { label: "Assistance", icon: "LifeBuoy", href: "https://www.unc.fr/assistance-juridique-et-sociale" },
 ];
 
@@ -152,10 +165,24 @@ export const PARTENAIRES = [
       },
     ],
   },
+  {
+    categorie: "Mutuelle",
+    items: [
+      {
+        nom: "Mutuelle du Monde Combattant",
+        url: "https://www.mutuelle-combattant.com/",
+        logo: logoMutuelleMondeCombattant,
+      },
+    ],
+  },
 ];
 
-// Associations locales (Notre région). Adresses/contacts à compléter par le client.
-export const ASSOCIATIONS_LOCALES = [
+// Associations locales (Notre région). Liste des 9 communes = référence figée :
+// c'est la source de vérité pour l'annuaire ET pour les actualités locales. Les
+// détails (nom/adresse/contact) et les actualités par commune se remplissent
+// désormais depuis l'espace admin (Firestore) ; ces villes servent de squelette
+// et de repli quand aucune donnée n'a encore été saisie.
+export const VILLES_ASSOCIATIONS = [
   "Canet",
   "Céret",
   "Ille-sur-Têt",
@@ -165,4 +192,34 @@ export const ASSOCIATIONS_LOCALES = [
   "Saint-Laurent-de-la-Salanque",
   "Saint-Féliu",
   "Thuir",
-].map((ville) => ({ ville, nom: "[À REMPLIR]", adresse: "[À REMPLIR]" }));
+];
+
+// Repli statique (conservé pour compatibilité) : chaque commune sans données.
+export const ASSOCIATIONS_LOCALES = VILLES_ASSOCIATIONS.map((ville) => ({
+  ville,
+  nom: "[À REMPLIR]",
+  adresse: "[À REMPLIR]",
+}));
+
+// Blocs latéraux de l'accueil (demande client). Les vraies photos n'ont pas
+// encore été fournies séparément → `image` reste indéfini et on affiche un
+// PlaceholderImage avec la légende. Pour livrer : importer la photo en asset et
+// renseigner `image` sur l'entrée correspondante.
+export const BLOC_JEUNESSE = [
+  { legende: "Cadets Défense Perpignan" },
+  { legende: "Escadrille Air Jeunesse Narbonne" },
+  { legende: "Cadets Gendarmerie Perpignan" },
+  { legende: "Préparation Militaire Marine CM Fort Perpignan" },
+  { legende: "Centre départemental de la Mémoire Combattante Perpignan" },
+  { legende: "Jeunes Quartier Perpignan" },
+  { legende: "Classe défense St Louis de Gonzague Perpignan" },
+];
+
+export const BLOC_UNITES_PARTENAIRES = [
+  { legende: "CNEC CIN Collioure" },
+  { legende: "Gendarmerie GGD Perpignan" },
+  { legende: "Police Nationale Perpignan" },
+  { legende: "Police Municipale Perpignan" },
+  { legende: "SDIS 66 Perpignan" },
+  { legende: "Protection Civile Perpignan" },
+];

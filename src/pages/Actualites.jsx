@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Newspaper, Archive } from "lucide-react";
 import PageHeader from "../components/PageHeader";
-import { ASSOCIATIONS_LOCALES } from "../data/siteContent";
+import { VILLES_ASSOCIATIONS } from "../data/siteContent";
 import { listActualites } from "../services/actualites";
+import { listActualitesLocales } from "../services/actualitesLocales";
 
 function ActualiteCard({ item }) {
   return (
@@ -22,18 +23,27 @@ function ActualiteCard({ item }) {
 export default function Actualites() {
   const [actualites, setActualites] = useState([]);
   const [archives, setArchives] = useState([]);
+  const [localesParVille, setLocalesParVille] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     (async () => {
       try {
-        const [actives, archivees] = await Promise.all([
+        const [actives, archivees, locales] = await Promise.all([
           listActualites({ archive: false }),
           listActualites({ archive: true }),
+          listActualitesLocales(),
         ]);
         setActualites(actives);
         setArchives(archivees);
+        // Regroupe les actualités locales par commune (déjà triées par date desc).
+        setLocalesParVille(
+          locales.reduce((acc, item) => {
+            (acc[item.ville] = acc[item.ville] || []).push(item);
+            return acc;
+          }, {})
+        );
       } catch {
         setError("Impossible de charger les actualités pour le moment.");
       } finally {
@@ -70,14 +80,31 @@ export default function Actualites() {
           <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-unc-navy mb-4">
             Actualités des associations locales
           </h2>
-          <ul className="text-sm text-unc-gray space-y-1.5">
-            {ASSOCIATIONS_LOCALES.map((a) => (
-              <li key={a.ville} className="flex justify-between border-b border-unc-border/10 pb-1.5">
-                <span className="font-medium text-unc-navy">{a.ville}</span>
-                <span className="text-unc-gray/50 italic text-xs">aucune actualité pour l'instant</span>
-              </li>
-            ))}
-          </ul>
+          <div className="space-y-4">
+            {VILLES_ASSOCIATIONS.map((ville) => {
+              const news = localesParVille[ville] || [];
+              return (
+                <div key={ville} className="border-b border-unc-border/10 pb-4 last:border-b-0">
+                  <p className="font-semibold text-unc-navy mb-2">{ville}</p>
+                  {loading ? (
+                    <p className="text-xs text-unc-gray/50">Chargement…</p>
+                  ) : news.length === 0 ? (
+                    <p className="text-xs italic text-unc-gray/50">Aucune actualité pour l'instant.</p>
+                  ) : (
+                    <ul className="space-y-2 pl-1">
+                      {news.map((item) => (
+                        <li key={item.id} className="border-l-2 border-unc-border/40 pl-3">
+                          <p className="text-xs text-unc-gray/60">{item.date}</p>
+                          <p className="text-sm font-medium text-unc-navy">{item.titre}</p>
+                          <p className="text-sm text-unc-gray whitespace-pre-line">{item.contenu}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </section>
 
         <section>
