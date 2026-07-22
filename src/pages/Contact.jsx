@@ -1,6 +1,7 @@
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Download } from "lucide-react";
 import PageHeader from "../components/PageHeader";
-import { COORDONNEES } from "../data/siteContent";
+import { BULLETIN_ADHESION_URL, COORDONNEES } from "../data/siteContent";
+import imgCaserne from "../assets/caserne-gallieni.png";
 
 const adresseComplete = `${COORDONNEES.adresse}, ${COORDONNEES.codePostal} ${COORDONNEES.ville}`;
 // Embed Google Maps sans clé API (mode "output=embed"), suffisant pour une carte simple.
@@ -51,22 +52,40 @@ export default function Contact() {
               Devenez membre de l'Union Nationale des Combattants.
             </p>
             <a
-              href="#"
-              className="inline-block bg-unc-navy hover:bg-unc-navy-dark text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
+              href={BULLETIN_ADHESION_URL}
+              download
+              className="inline-flex items-center gap-2 bg-unc-navy hover:bg-unc-navy-dark text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
             >
+              <Download className="w-4 h-4" />
               Adhérer — bulletin d'adhésion UNC 66
             </a>
           </div>
         </div>
 
-        <div className="rounded-lg overflow-hidden border border-unc-border/40 min-h-[320px]">
-          <iframe
-            title="Localisation UNC 66"
-            src={MAPS_EMBED_URL}
-            className="w-full h-full min-h-[320px]"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
+        <div className="flex flex-col gap-6">
+          {/* Photo de l'entrée de la caserne Galliéni (fournie par le client),
+              affichée sur desktop uniquement — sur mobile la colonne resterait
+              trop longue avant la carte. */}
+          <figure className="hidden sm:block relative rounded-lg overflow-hidden border border-unc-border/40">
+            <img
+              src={imgCaserne}
+              alt="Entrée de la caserne Galliéni à Perpignan"
+              className="w-full h-56 object-cover"
+            />
+            <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-unc-navy/85 to-unc-navy/0 pt-8 pb-2.5 px-4 text-white text-xs font-medium">
+              La Maison du combattant — Caserne Galliéni
+            </figcaption>
+          </figure>
+
+          <div className="flex-1 rounded-lg overflow-hidden border border-unc-border/40 min-h-[320px]">
+            <iframe
+              title="Localisation UNC 66"
+              src={MAPS_EMBED_URL}
+              className="w-full h-full min-h-[320px]"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
         </div>
       </div>
     </div>

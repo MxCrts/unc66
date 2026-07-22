@@ -45,18 +45,29 @@ de page (`ScrollToTop`) ; bouton "retour au site" sur la page de connexion admin
 partenaire Mutuelle du Monde Combattant ajouté ; **Notre région** et **Actualités
 des associations locales** désormais éditables depuis l'admin (Firestore).
 
+**Phase 4 (faite — retours client 2)** : bouton "Retour au site" sur la page
+Mot du Président ; page Contact : bouton Adhérer branché sur le bulletin PDF +
+photo de la caserne Galliéni (`src/assets/caserne-gallieni.png`, desktop
+uniquement) ; **partenaires gérés depuis l'admin** (collection Firestore
+`partenaires`, CRUD + réordonnancement + import initial de la liste statique,
+voir section Firebase) ; nouveau partenaire CDM66 (catégorie "Transmission de
+la mémoire combattante", avant "Retraite mutualiste") ; **photos sur les
+actualités locales** (mêmes conventions image que les actualités fédérales) ;
+champ image mutualisé dans `src/components/admin/ImageField.jsx` (utilisé par
+actualités, actualités locales et partenaires).
+
 **Reste à faire** :
-- Fournir les vraies **photos des blocs latéraux** de l'accueil (La jeunesse /
-  Nos unités partenaires) : importer chaque asset et renseigner `image` sur
-  l'entrée correspondante dans `BLOC_JEUNESSE` / `BLOC_UNITES_PARTENAIRES`
 - Créer réellement la boîte mail `contact@unc66.com` (l'adresse est déjà câblée
   partout côté site)
 - Remplacer les URLs externes placeholder restantes vers unc.fr par les vraies
-- **Redéployer les règles Firestore** (`actualitesLocales` et `associationsLocales`
-  viennent d'être ajoutées à `firestore.rules`) — le client lance `firebase login`
-  puis `firebase deploy --only firestore:rules` (voir section Firebase)
-- Éventuellement : gérer les partenaires depuis l'admin (encore en dur dans
-  `siteContent.js`, par périmètre explicite de la demande client)
+- **Redéployer les règles Firebase** (`partenaires` ajouté à `firestore.rules` ;
+  `actualitesLocales/` et `partenaires/` ajoutés à `storage.rules`) — le client
+  lance `firebase login` puis
+  `firebase deploy --only firestore:rules,firestore:indexes,storage:rules`
+- Depuis l'admin (une fois les règles déployées) : ouvrir la section
+  Partenaires et cliquer sur **« Importer les partenaires du site »** (seed
+  initial de la collection `partenaires` ; tant que ce n'est pas fait, la page
+  publique affiche le repli statique de `siteContent.js`)
 
 ## Charte graphique (extraite des maquettes client)
 
@@ -115,6 +126,7 @@ fond coloré. Convention reprise partout via `border border-unc-border/30` ou
 /admin/dashboard/actualites          CRUD actualités fédérales (protégée)
 /admin/dashboard/actualites-locales  CRUD actualités des associations locales (protégée)
 /admin/dashboard/notre-region        Édition annuaire des associations locales (protégée)
+/admin/dashboard/partenaires         CRUD partenaires + réordonnancement (protégée)
 /admin/dashboard/documents           Upload/suppression documents Storage (protégée)
 *                                    404
 ```
@@ -172,12 +184,14 @@ d'Analytics (`getAnalytics` volontairement absent, inutile pour l'instant).
 | `agenda/{id}` | `titre, date, description, type, archive, createdAt` | Mêmes conventions. `type` = texte libre (ex: "Cérémonie", "Repas"), pas d'enum fixe. |
 | `motDuPresident/current` | `texte, imageUrl?, imageStoragePath?, updatedAt` | "Document unique" = id fixe `current` dans la collection `motDuPresident` (Firestore n'a pas de vrai singleton). `imageUrl`/`imageStoragePath` : photo du Président uploadée depuis l'admin (dossier Storage `president/`), même logique que `documents.storagePath` — remplacement/retrait d'une photo supprime l'ancien fichier Storage. |
 | `documents/{id}` | `nom, url, storagePath, uploadedAt` | `storagePath` ajouté par rapport à la demande initiale : nécessaire pour supprimer le bon fichier dans Storage (sans ça, `url` seule ne permet pas de retrouver la référence Storage à supprimer). |
-| `actualitesLocales/{id}` | `ville, titre, contenu, date, createdAt` | Actualités publiées au nom d'une association locale (par commune). `ville` ∈ `VILLES_ASSOCIATIONS`. Récupérées en bloc (`orderBy date desc`) puis regroupées par commune côté client — pas de `where(ville)+orderBy` pour éviter un index composite. |
+| `actualitesLocales/{id}` | `ville, titre, contenu, date, imageUrl?, imageStoragePath?, createdAt` | Actualités publiées au nom d'une association locale (par commune). `ville` ∈ `VILLES_ASSOCIATIONS`. Récupérées en bloc (`orderBy date desc`) puis regroupées par commune côté client — pas de `where(ville)+orderBy` pour éviter un index composite. `imageUrl`/`imageStoragePath` : mêmes conventions que `actualites` (dossier Storage `actualitesLocales/`). |
 | `associationsLocales/{id}` | `ville, nom, adresse, telephone, email, updatedAt` | Annuaire "Notre région". **id = slug de la ville** (`slugVille()`), donc upsert idempotent (une fiche par commune, jamais de doublon). Squelette = les 9 `VILLES_ASSOCIATIONS` ; commune sans fiche => affichée « [À REMPLIR] ». |
+| `partenaires/{id}` | `nom, categorie, url?, logoUrl?, logoStoragePath?, ordre, createdAt` | Partenaires de la page publique. `categorie` = texte libre, sert au regroupement (les catégories apparaissent à la position de leur premier partenaire). `ordre` (nombre, pas de 10 en 10) pilote l'ordre d'affichage, modifiable via les flèches haut/bas de l'admin. `logoUrl`/`logoStoragePath` : mêmes conventions que les images d'actualités (dossier Storage `partenaires/`). **Tant que la collection est vide, la page publique affiche le repli statique `PARTENAIRES` de `siteContent.js`** ; l'admin propose alors un bouton « Importer les partenaires du site » (`seedPartenairesDepuisSite()` : re-upload des logos bundlés vers Storage car leurs URLs Vite changent à chaque build). |
 
 Toute la logique d'accès est dans **`src/services/`** (un fichier par
-collection : `actualites.js`, `agenda.js`, `motDuPresident.js`,
-`documents.js`) — aucun composant n'appelle Firestore/Storage directement,
+collection : `actualites.js`, `actualitesLocales.js`, `agenda.js`,
+`associationsLocales.js`, `motDuPresident.js`, `documents.js`,
+`partenaires.js`) — aucun composant n'appelle Firestore/Storage directement,
 toujours en passant par ces services. `listActualites({archive})` et les
 équivalents agenda font le tri actif/archivé côté Firestore (`where`), pas
 côté client.
@@ -192,22 +206,27 @@ codes d'erreur Firebase sont traduits en français par
 admin existe : "authentifié" équivaut à "admin" dans les règles de sécurité —
 pas de rôles/claims différenciés pour l'instant.
 
-Les uploads d'image (photo du Président, images d'actualités) partagent la
-même validation client via `src/lib/imageValidation.js` (`validerImage(file)`) :
-formats acceptés `jpg/png/webp`, poids max 5 Mo, sinon message d'erreur en
-français. Trois dossiers Storage sont utilisés au total : `documents/`
-(pièces jointes), `president/` (photo du Mot du Président), `actualites/`
-(images d'actualités uploadées) — tous avec le même pattern (`storagePath`
-enregistré côté Firestore pour permettre la suppression, remplacement propre
-= upload de la nouvelle image puis suppression de l'ancienne une fois
-l'enregistrement réussi).
+Les uploads d'image (photo du Président, images d'actualités et d'actualités
+locales, logos partenaires) partagent la même validation client via
+`src/lib/imageValidation.js` (`validerImage(file)`) : formats acceptés
+`jpg/png/webp`, poids max 5 Mo, sinon message d'erreur en français. Cinq
+dossiers Storage sont utilisés au total : `documents/` (pièces jointes),
+`president/` (photo du Mot du Président), `actualites/`, `actualitesLocales/`
+(images d'actualités uploadées) et `partenaires/` (logos) — tous avec le même
+pattern (`storagePath` enregistré côté Firestore pour permettre la
+suppression, remplacement propre = upload de la nouvelle image puis
+suppression de l'ancienne une fois l'enregistrement réussi). Côté admin, le
+champ image (bascule « URL / importer un fichier », aperçu, retrait) est le
+composant partagé `src/components/admin/ImageField.jsx` : le parent détient
+l'état (`imageFieldVide()` / `imageFieldDepuisItem()`) et le résout au submit
+via `resolveImageField(state, uploadFn)`.
 
 ### Règles de sécurité
 
 `firestore.rules` et `storage.rules` (à la racine) : **lecture publique**
 sur toutes les collections/fichiers listés ci-dessus (Storage : `documents/`,
-`president/`, `actualites/`), **écriture réservée aux utilisateurs
-authentifiés**. Tout le reste est fermé par défaut.
+`president/`, `actualites/`, `actualitesLocales/`, `partenaires/`), **écriture
+réservée aux utilisateurs authentifiés**. Tout le reste est fermé par défaut.
 
 **Déploiement des règles** (à faire une fois par le client, qui a les accès
 Firebase) :

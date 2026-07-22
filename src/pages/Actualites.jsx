@@ -97,6 +97,14 @@ export default function Actualites() {
                           <p className="text-xs text-unc-gray/60">{item.date}</p>
                           <p className="text-sm font-medium text-unc-navy">{item.titre}</p>
                           <p className="text-sm text-unc-gray whitespace-pre-line">{item.contenu}</p>
+                          {item.imageUrl && (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.titre}
+                              loading="lazy"
+                              className="mt-2 max-h-48 w-auto max-w-full rounded-md border border-unc-border/20"
+                            />
+                          )}
                         </li>
                       ))}
                     </ul>

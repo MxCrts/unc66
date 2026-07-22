@@ -14,6 +14,7 @@ import logoGueulesCassees from "../assets/partenaires/gueules-cassees.jpeg";
 import logoMaisonNumerique from "../assets/partenaires/maison-numerique-blesses.png";
 import logoFranceMutualiste from "../assets/partenaires/france-mutualiste.png";
 import logoMutuelleMondeCombattant from "../assets/partenaires/mutuelle-monde-combattant.png";
+import logoCdm66 from "../assets/partenaires/cdm66.png";
 
 // Photos des blocs latéraux de l'accueil (fournies par le client).
 import imgCadetsDefense from "../assets/accueil/cadets-defense-perpignan.png";
@@ -120,8 +121,10 @@ export const ACTIONS_RAPIDES = [
 
 // Partenaires (grille logos + noms + lien), regroupés par catégorie comme sur la
 // maquette. `url` = site officiel du partenaire (ouvert dans un nouvel onglet).
-// Les logos réels ne sont pas encore fournis par le client → PlaceholderImage
-// en attendant les vrais visuels.
+// Depuis la phase 4, les partenaires sont gérés depuis l'admin (collection
+// Firestore "partenaires") : cette liste statique sert de REPLI public tant que
+// la collection est vide, et de source pour le bouton "Importer les partenaires
+// du site" de l'admin (seed initial). Ne pas la supprimer.
 export const PARTENAIRES = [
   {
     categorie: "Institutions",
@@ -167,6 +170,17 @@ export const PARTENAIRES = [
         nom: "Maison numérique des blessés",
         url: "https://maison-des-blesses.defense.gouv.fr/",
         logo: logoMaisonNumerique,
+      },
+    ],
+  },
+  {
+    // Demande client (MODIF20) : catégorie ajoutée avant "Retraite mutualiste".
+    categorie: "Transmission de la mémoire combattante",
+    items: [
+      {
+        nom: "Centre départemental de la mémoire combattante (CDM66)",
+        url: "http://cdm66.free.fr/",
+        logo: logoCdm66,
       },
     ],
   },

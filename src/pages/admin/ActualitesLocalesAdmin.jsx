@@ -6,10 +6,17 @@ import {
   createActualiteLocale,
   updateActualiteLocale,
   deleteActualiteLocale,
+  uploadActualiteLocaleImage,
+  deleteActualiteLocaleImage,
 } from "../../services/actualitesLocales";
 import { messageErreurFirebase } from "../../lib/firebaseErrors";
 import Field, { inputClass } from "../../components/admin/Field";
 import StatusMessage from "../../components/admin/StatusMessage";
+import ImageField, {
+  imageFieldVide,
+  imageFieldDepuisItem,
+  resolveImageField,
+} from "../../components/admin/ImageField";
 
 const FORM_VIDE = { ville: VILLES_ASSOCIATIONS[0], titre: "", contenu: "", date: "" };
 
@@ -19,8 +26,10 @@ export default function ActualitesLocalesAdmin() {
   const [loadError, setLoadError] = useState("");
 
   const [form, setForm] = useState(FORM_VIDE);
+  const [image, setImage] = useState(imageFieldVide());
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -42,6 +51,7 @@ export default function ActualitesLocalesAdmin() {
 
   function resetForm() {
     setForm(FORM_VIDE);
+    setImage(imageFieldVide());
     setEditingId(null);
     setFormError("");
   }
@@ -54,6 +64,7 @@ export default function ActualitesLocalesAdmin() {
       contenu: item.contenu || "",
       date: item.date || "",
     });
+    setImage(imageFieldDepuisItem({ url: item.imageUrl, storagePath: item.imageStoragePath }));
     setSuccess("");
     setFormError("");
   }
@@ -61,7 +72,7 @@ export default function ActualitesLocalesAdmin() {
   async function handleDelete(item) {
     if (!window.confirm("Supprimer définitivement cette actualité locale ?")) return;
     try {
-      await deleteActualiteLocale(item.id);
+      await deleteActualiteLocale(item);
       if (editingId === item.id) resetForm();
       await loadItems();
     } catch (err) {
@@ -75,18 +86,34 @@ export default function ActualitesLocalesAdmin() {
     setSuccess("");
     setSubmitting(true);
     try {
+      setUploadingImage(!!image.file);
+      const resolved = await resolveImageField(image, uploadActualiteLocaleImage);
+      setUploadingImage(false);
+
+      const payload = { ...form, imageUrl: resolved.url, imageStoragePath: resolved.storagePath };
+
       if (editingId) {
-        await updateActualiteLocale(editingId, form);
+        await updateActualiteLocale(editingId, payload);
         setSuccess("Actualité locale mise à jour.");
       } else {
-        await createActualiteLocale(form);
+        await createActualiteLocale(payload);
         setSuccess("Actualité locale publiée.");
       }
+
+      if (image.pendingDeletePath) {
+        try {
+          await deleteActualiteLocaleImage(image.pendingDeletePath);
+        } catch {
+          // Best-effort : l'actualité est déjà enregistrée avec sa nouvelle image.
+        }
+      }
+
       resetForm();
       await loadItems();
     } catch (err) {
       setFormError(messageErreurFirebase(err));
     } finally {
+      setUploadingImage(false);
       setSubmitting(false);
     }
   }
@@ -157,6 +184,10 @@ export default function ActualitesLocalesAdmin() {
           />
         </Field>
 
+        <Field label="Photo (optionnel)">
+          <ImageField state={image} onChange={setImage} uploading={uploadingImage} disabled={submitting} />
+        </Field>
+
         <StatusMessage type="error">{formError}</StatusMessage>
         <StatusMessage type="success">{success}</StatusMessage>
 
@@ -165,7 +196,13 @@ export default function ActualitesLocalesAdmin() {
           disabled={submitting}
           className="bg-unc-navy hover:bg-unc-navy-dark text-white text-sm font-semibold px-4 py-2.5 rounded-md transition-colors disabled:opacity-60"
         >
-          {submitting ? "Enregistrement…" : editingId ? "Enregistrer les modifications" : "Publier l'actualité"}
+          {uploadingImage
+            ? "Envoi de la photo…"
+            : submitting
+            ? "Enregistrement…"
+            : editingId
+            ? "Enregistrer les modifications"
+            : "Publier l'actualité"}
         </button>
       </form>
 

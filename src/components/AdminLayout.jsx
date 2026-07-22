@@ -7,6 +7,7 @@ import {
   Newspaper,
   Megaphone,
   MapPin,
+  Handshake,
   FolderOpen,
   LogOut,
 } from "lucide-react";
@@ -21,6 +22,7 @@ const SECTIONS = [
   { to: "/admin/dashboard/actualites", label: "Actualités", icon: Newspaper },
   { to: "/admin/dashboard/actualites-locales", label: "Actualités locales", icon: Megaphone },
   { to: "/admin/dashboard/notre-region", label: "Notre région", icon: MapPin },
+  { to: "/admin/dashboard/partenaires", label: "Partenaires", icon: Handshake },
   { to: "/admin/dashboard/documents", label: "Documents", icon: FolderOpen },
 ];
 

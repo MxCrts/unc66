@@ -21,6 +21,7 @@ import AgendaAdmin from "./pages/admin/AgendaAdmin";
 import ActualitesAdmin from "./pages/admin/ActualitesAdmin";
 import ActualitesLocalesAdmin from "./pages/admin/ActualitesLocalesAdmin";
 import NotreRegionAdmin from "./pages/admin/NotreRegionAdmin";
+import PartenairesAdmin from "./pages/admin/PartenairesAdmin";
 import DocumentsAdmin from "./pages/admin/DocumentsAdmin";
 import NotFound from "./pages/NotFound";
 
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="actualites" element={<ActualitesAdmin />} />
               <Route path="actualites-locales" element={<ActualitesLocalesAdmin />} />
               <Route path="notre-region" element={<NotreRegionAdmin />} />
+              <Route path="partenaires" element={<PartenairesAdmin />} />
               <Route path="documents" element={<DocumentsAdmin />} />
             </Route>
           </Route>

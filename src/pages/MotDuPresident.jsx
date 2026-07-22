@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import PageHeader from "../components/PageHeader";
 import PlaceholderImage from "../components/PlaceholderImage";
 import { getMotDuPresident } from "../services/motDuPresident";
@@ -50,6 +52,17 @@ export default function MotDuPresident() {
           )}
           <p className="text-sm text-unc-gray/60 italic">— Le Président de l'UNC 66</p>
         </div>
+      </div>
+
+      {/* Bouton "retour au site" (demande client), en plus de la navigation. */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-12">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 bg-unc-navy hover:bg-unc-navy-dark text-white text-sm font-semibold px-5 py-2.5 rounded-md transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour au site
+        </Link>
       </div>
     </div>
   );
