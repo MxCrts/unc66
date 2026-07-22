@@ -60,14 +60,10 @@ actualités, actualités locales et partenaires).
 - Créer réellement la boîte mail `contact@unc66.com` (l'adresse est déjà câblée
   partout côté site)
 - Remplacer les URLs externes placeholder restantes vers unc.fr par les vraies
-- **Redéployer les règles Firebase** (`partenaires` ajouté à `firestore.rules` ;
-  `actualitesLocales/` et `partenaires/` ajoutés à `storage.rules`) — le client
-  lance `firebase login` puis
-  `firebase deploy --only firestore:rules,firestore:indexes,storage:rules`
-- Depuis l'admin (une fois les règles déployées) : ouvrir la section
-  Partenaires et cliquer sur **« Importer les partenaires du site »** (seed
-  initial de la collection `partenaires` ; tant que ce n'est pas fait, la page
-  publique affiche le repli statique de `siteContent.js`)
+- Depuis l'admin : ouvrir la section Partenaires et cliquer sur **« Importer
+  les partenaires du site »** (seed initial de la collection `partenaires` ;
+  tant que ce n'est pas fait, la page publique affiche le repli statique de
+  `siteContent.js`). Les règles Firebase de la phase 4 sont déjà déployées.
 
 ## Charte graphique (extraite des maquettes client)
 
@@ -233,8 +229,12 @@ Firebase) :
 
 ```bash
 firebase login
-firebase deploy --only firestore:rules,firestore:indexes,storage:rules
+firebase deploy --only firestore:rules,firestore:indexes,storage
 ```
+
+(Attention : la cible Storage s'appelle `storage`, pas `storage:rules` —
+cette dernière fait échouer le deploy avec « Could not find rules for the
+following storage targets ».)
 
 `firebase.json` et `.firebaserc` (déjà présents, pointent vers le projet
 `site-unc66`) permettent à cette commande de fonctionner sans configuration
